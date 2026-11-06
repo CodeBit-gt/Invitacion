@@ -8,9 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #2F4F2F; 
+            background-color: #f4f1eb;
             margin: 0;
             padding: 0;
+            overscroll-behavior: none; /* Previene el rebote en iOS/Android al tope/fondo */
+            overflow-x: hidden; /* Corta el scroll horizontal */
         }
         .textura-papel {
             background-color: #f4f1eb;
@@ -460,53 +462,60 @@
                 <!-- FIN ITINERARIO                             -->
                 <!-- ========================================== -->
 
-                <!-- Dress Code -->
-                <div class="py-12 px-6 w-full mt-6 bg-white/30 border-y border-[#d3cbb9]">
+                                <!-- Dress Code -->
+                <div class="py-12 px-6 w-full mt-6 bg-white/30 border-y border-[#d3cbb9] overflow-hidden">
                     <div class="flex items-center mb-8">
                         <h3 class="font-serif-elegant text-xl tracking-widest mr-4 text-[#2b352d]">DRESS CODE</h3><hr class="flex-grow border-gray-400">
                     </div>
                     <p class="font-serif-elegant text-gray-700 mb-8 ml-2">Tipo de vestimenta: Formal</p>
                     
-                    <div class="mb-4">
-                        <!-- Damas -->
-                        <div class="flex items-start mb-6 bg-white/60 p-4 rounded-xl shadow-sm border border-gray-200">
-                            <a href="https://www.pinterest.com/search/pins/?q=vestidos%20formales%20boda%20oto%C3%B1o%20terracota" target="_blank" class="flex flex-col items-center mr-4 w-24 shrink-0 hover:opacity-75 transition-opacity">
+                    <div class="mb-4 space-y-6">
+                        <!-- Tarjeta Damas -->
+                        <div class="flex items-start bg-white/60 p-4 rounded-xl shadow-sm border border-gray-200 w-full">
+                            <a href="https://www.pinterest.com/search/pins/?q=vestidos%20formales%20boda%20oto%C3%B1o%20terracota" target="_blank" class="flex flex-col items-center mr-3 w-20 shrink-0 hover:opacity-75 transition-opacity">
                                 <svg class="w-10 h-10 text-[#4a5d4e] mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.5 2 8 4 8 4L5 12h3v10h8V12h3l-3-8s-1.5-2-4-2z"/></svg>
-                                <span class="font-cinzel text-xs font-bold text-[#2b352d]">DAMAS</span>
-                                <span class="border rounded px-2 mt-1 text-[9px] font-serif-elegant text-gray-500 border-gray-400 bg-white">IDEAS AQUÍ</span>
+                                <span class="font-cinzel text-xs font-bold text-[#2b352d] text-center mt-1">DAMAS</span>
+                                <span class="border rounded px-2 mt-1 text-[8px] font-serif-elegant text-gray-500 border-gray-400 bg-white">IDEAS AQUÍ</span>
                             </a>
-                            <ul class="font-serif-elegant text-[13px] text-gray-700 list-disc ml-4 space-y-1 mt-1">
-                                <li>Vestidos largos o de coctel sofisticados.</li>
-                                <li>Colores sugeridos: Terracota, cobrizo, nude, café.</li>
-                                <div class="flex justify-center gap-2">
-                                <div class="w-10 h-8 bg-[#b05b3d] border border-white shadow-sm"></div>
-                                <div class="w-10 h-8 bg-[#8b6551] border border-white shadow-sm"></div>
-                                <div class="w-10 h-8 bg-[#c49269] border border-white shadow-sm"></div>
-                                <div class="w-10 h-8 bg-[#c89279] border border-white shadow-sm"></div>
-                                <div class="w-10 h-8 bg-[#b96f53] border border-white shadow-sm"></div>
-                            </ul>
+                            <!-- Contenedor flexible que evita el desbordamiento -->
+                            <div class="flex-1 min-w-0">
+                                <ul class="font-serif-elegant text-[13px] text-gray-700 list-disc ml-4 space-y-1">
+                                    <li>Vestidos largos o de coctel sofisticados.</li>
+                                    <li>Colores sugeridos: Terracota, cobrizo, nude, café.</li>
+                                </ul>
+                                <!-- Paleta Damas (se ajusta y baja de línea si es necesario) -->
+                                <div class="flex flex-wrap gap-1.5 mt-3 ml-4">
+                                    <div class="w-8 h-8 bg-[#b05b3d] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#8b6551] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#c49269] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#c89279] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#b96f53] border border-white shadow-sm rounded-sm"></div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Caballeros -->
-                        <div class="flex items-start bg-white/60 p-4 rounded-xl shadow-sm border border-gray-200">
-                            <a href="https://www.pinterest.com/search/pins/?q=traje%20formal%20hombre%20boda%20oto%C3%B1o" target="_blank" class="flex flex-col items-center mr-4 w-24 shrink-0 hover:opacity-75 transition-opacity">
+                        <!-- Tarjeta Caballeros -->
+                        <div class="flex items-start bg-white/60 p-4 rounded-xl shadow-sm border border-gray-200 w-full">
+                            <a href="https://www.pinterest.com/search/pins/?q=traje%20formal%20hombre%20boda%20oto%C3%B1o" target="_blank" class="flex flex-col items-center mr-3 w-20 shrink-0 hover:opacity-75 transition-opacity">
                                 <svg class="w-10 h-10 text-[#4a5d4e] mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L4 9v12h16V9l-8-6zm0 2.5l5 3.75V20h-3v-6H10v6H7V9.25L12 5.5z"/></svg>
-                                <span class="font-cinzel text-xs font-bold text-[#2b352d]">CABALLEROS</span>
-                                <span class="border rounded px-2 mt-1 text-[9px] font-serif-elegant text-gray-500 border-gray-400 bg-white">IDEAS AQUÍ</span>
+                                <span class="font-cinzel text-xs font-bold text-[#2b352d] text-center mt-1">CABALLEROS</span>
+                                <span class="border rounded px-2 mt-1 text-[8px] font-serif-elegant text-gray-500 border-gray-400 bg-white">IDEAS AQUÍ</span>
                             </a>
-                            <ul class="font-serif-elegant text-[13px] text-gray-700 list-disc ml-4 space-y-1 mt-1">
-                                <li>Traje de vestir formal.</li>
-                                <li>Colores: Gris oscuro, arena, negro, café rústico.</li>
-                                <div class="flex justify-center gap-2">
-                                    <div class="w-10 h-8 bg-[#5d5656] border border-white shadow-sm"></div>
-                                    <div class="w-10 h-8 bg-[#cec5bb] border border-white shadow-sm"></div>
-                                    <div class="w-10 h-8 bg-[#121212] border border-white shadow-sm"></div>
-                                    <div class="w-10 h-8 bg-[#985114] border border-white shadow-sm"></div>
+                            <div class="flex-1 min-w-0">
+                                <ul class="font-serif-elegant text-[13px] text-gray-700 list-disc ml-4 space-y-1">
+                                    <li>Traje de vestir formal.</li>
+                                    <li>Colores: Gris oscuro, arena, negro, café rústico.</li>
+                                </ul>
+                                <div class="flex flex-wrap gap-1.5 mt-3 ml-4">
+                                    <div class="w-8 h-8 bg-[#5d5656] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#cec5bb] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#121212] border border-white shadow-sm rounded-sm"></div>
+                                    <div class="w-8 h-8 bg-[#985114] border border-white shadow-sm rounded-sm"></div>
                                 </div>
-                            </ul>
+                            </div>
                         </div>
                     </div>
-
+                    
                     <!-- Colores que no debes usar -->
                         <div class="flex flex-col items-center justify-center mb-6 text-center">
                             <div class="flex items-center mb-4">
