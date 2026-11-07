@@ -12,9 +12,14 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            max-width: 100vw;
+            min-height: 100%;
+            max-width: 100%;
             overscroll-behavior: none;
-            overflow-x: hidden !important; 
+            overflow-x: hidden !important;
+        }
+
+        body {
+            min-height: 100dvh;
         }
         .textura-papel {
             background-color: #f4f1eb;
@@ -267,7 +272,7 @@
 </head>
 <body class="antialiased text-gray-800">
 
-    <div id="app-container" class="max-w-md mx-auto relative shadow-[0_0_40px_rgba(0,0,0,0.5)] h-[100dvh] overflow-hidden bg-[#f4f1eb]">
+    <div id="app-container" class="w-full max-w-none mx-0 relative h-[100dvh] overflow-hidden bg-[#f4f1eb]">
         
         <!-- FONDO CLARO DE PAPEL (Permanente en el fondo) -->
         <div class="absolute inset-0 textura-papel z-0"></div>
@@ -277,20 +282,22 @@
 
         <!-- CONTENEDOR SCROLL PRINCIPAL -->
         <div id="scroll-wrapper" class="absolute inset-0 z-20 overflow-hidden hidden-scroll scroll-smooth">
-            
+
             <!-- POSICIONADOR DEL SOBRE (Empieza en el centro y viaja hacia arriba) -->
             <div id="envelope-positioner" class="relative flex justify-center mt-[25vh] transition-all duration-1000 ease-in-out z-20">
                 
-                <!-- Decoración Pampas (Aparece detrás del sobre al abrir) -->
-                <div id="pampas-decor" class="absolute -right-12 top-10 w-56 h-56 opacity-0 transition-opacity duration-1000 z-0 pointer-events-none">
-                    <img src="decoracion.png" alt="Pampas Decorativas" class="w-full h-full object-contain rotate-12 opacity-80 mix-blend-multiply">
-                </div>
-
                 <!-- El Sobre -->
                 <div class="envelope-wrapper scale-[0.85] sm:scale-[0.9] relative z-10">
+                    
+                    <!-- SOLUCIÓN: Hojas otoñales movidas adentro del 'envelope-wrapper' -->
+                    <!-- Ahora el 'absolute' se calcula desde el borde derecho del sobre -->
+                    <div id="pampas-decor" class="absolute -right-24 top-8 w-52 h-52 opacity-0 transition-opacity duration-1000 z-0 pointer-events-none">
+                        <img src="decoracion.png" alt="Pampas Decorativas" class="w-full h-full object-contain rotate-[15deg] opacity-80 mix-blend-multiply">
+                    </div>
+
                     <div class="envelope-back"></div>
 
-                     <!-- NUEVA SOLAPA TRASERA PARA EL EFECTO ABIERTO -->
+                    <!-- NUEVA SOLAPA TRASERA PARA EL EFECTO ABIERTO -->
                     <div id="flap-top-up" class="flap-top-up"></div>
                     
                     <div id="letter" class="letter-container">
@@ -677,9 +684,9 @@
                 </div>
                 
                 <!-- Footer -->
-                <div class="text-center py-12 w-full">
-                    <p class="font-cinzel text-sm tracking-widest text-[#2b352d]">¡LOS ESPERAMOS!</p>
-                    <p class="font-script text-5xl mt-6 text-[#4a5d4e]">AV</p>
+                <div class="w-full min-h-[300px] px-6 py-16 flex flex-col items-center justify-center text-center">
+                    <p class="w-full text-center font-cinzel text-sm tracking-widest text-[#2b352d]">    ¡ LOS ESPERAMOS ! </p>
+                    <p class="block w-full text-center font-script text-5xl mt-6 text-[#4a5d4e]">AV</p>
                 </div>
 
             </div>
