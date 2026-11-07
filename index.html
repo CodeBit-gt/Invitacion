@@ -62,12 +62,13 @@
 
         .letter-container {
             position: absolute;
-            top: -0.001px; left: 12px; right: 12px; bottom: 15px;
+            top: 25px; /* ANTES: -0.001px. Lo bajamos para esconder las esquinas */
+            left: 12px; right: 12px; bottom: 15px;
             z-index: 2;
             transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
         }
         .letter-container.slide-up {
-            transform: translateY(-120px);
+            transform: translateY(-145px);
         }
 
         /* Estilos del Collage Interior */
@@ -111,7 +112,7 @@
 
         .date-badge-wrapper {
             position: absolute;
-            bottom: 35px;
+            bottom: 0.05px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 30;
@@ -287,12 +288,12 @@
             <div id="envelope-positioner" class="relative flex justify-center mt-[25vh] transition-all duration-1000 ease-in-out z-20">
                 
                 <!-- El Sobre -->
-                <div class="envelope-wrapper scale-[0.85] sm:scale-[0.9] relative z-10">
+                <div class="envelope-wrapper scale-[0.98] sm:scale-103 md:scale-118 relative z-10">
                     
                     <!-- SOLUCIÓN: Hojas otoñales movidas adentro del 'envelope-wrapper' -->
                     <!-- Ahora el 'absolute' se calcula desde el borde derecho del sobre -->
-                    <div id="pampas-decor" class="absolute -right-24 top-8 w-52 h-52 opacity-0 transition-opacity duration-1000 z-0 pointer-events-none">
-                        <img src="decoracion.png" alt="Pampas Decorativas" class="w-full h-full object-contain rotate-[15deg] opacity-80 mix-blend-multiply">
+                    <div id="pampas-decor" class="absolute -right-5 top-10 w-56 h-56 opacity-0 transition-opacity duration-1000 z-20 pointer-events-none">
+                        <img src="decoracion.png" alt="Pampas Decorativas" class="w-full h-full object-contain rotate-[12deg] opacity-80 mix-blend-multiply">
                     </div>
 
                     <div class="envelope-back"></div>
