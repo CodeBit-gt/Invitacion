@@ -7,12 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
     <style>
-        body {
+        html, body {
             background-color: #f4f1eb;
             margin: 0;
             padding: 0;
-            overscroll-behavior: none; /* Previene el rebote en iOS/Android al tope/fondo */
-            overflow-x: hidden; /* Corta el scroll horizontal */
+            width: 100%;
+            max-width: 100vw;
+            overscroll-behavior: none;
+            overflow-x: hidden !important; 
         }
         .textura-papel {
             background-color: #f4f1eb;
@@ -36,6 +38,7 @@
         .envelope-wrapper {
             position: relative;
             width: 350px;
+            max-width: 95%;
             height: 240px;
             perspective: 1500px;
             filter: drop-shadow(0 20px 25px rgba(0,0,0,0.5)); 
@@ -55,7 +58,7 @@
         .letter-container {
             position: absolute;
             top: -0.001px; left: 12px; right: 12px; bottom: 15px;
-            z-index: 1;
+            z-index: 2;
             transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
         }
         .letter-container.slide-up {
@@ -103,7 +106,8 @@
 
         .date-badge-wrapper {
             position: absolute;
-            bottom: 10px; left: 50%;
+            bottom: 35px;
+            left: 50%;
             transform: translateX(-50%);
             z-index: 30;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
@@ -415,9 +419,9 @@
                             <p class="font-serif-elegant text-[10px] italic text-gray-600 mt-1">CLICK AQUI PARA MAPA</p>
                         </a>
                         <!-- NUEVO: Botón Calendario -->
-                        <button onclick="downloadICS()" class="bg-[#2b352d] text-[#eae4d8] border border-[#d3cbb9] rounded-full px-6 py-3 shadow-sm text-center block hover:opacity-80 transition-opacity w-full">
-                            <p class="font-cinzel text-base font-bold">AGREGAR AL CALENDARIO</p>
-                            <p class="font-serif-elegant text-[10px] italic text-gray-400 mt-1">APPLE / GOOGLE / ANDROID</p>
+                        <button onclick="downloadICS()" type="button" class="bg-[#2b352d] text-[#eae4d8] border border-[#d3cbb9] rounded-full px-6 py-3 shadow-sm text-center block hover:opacity-80 transition-opacity w-full">
+                                <p class="font-cinzel text-base font-bold">AGREGAR AL CALENDARIO</p>
+                                <p class="font-serif-elegant text-[10px] italic text-gray-400 mt-1 uppercase">APPLE / GOOGLE / ANDROID</p>
                         </button>
                     </div>
                 </div>
@@ -739,6 +743,41 @@
                 setTimeout(() => {
                     box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 300);
+            }
+        }
+
+        // DESCARGA DE CALENDARIO CORREGIDA (Compatible con iPhone y Android)
+        function downloadICS() {
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:Boda Alex y Valery
+DTSTART:20261205T173000
+DTEND:20261205T230000
+LOCATION:LA CABAÑA\\, RAXANEP\\, JOYABAJ\\, EL QUICHE
+DESCRIPTION:¡Nos casamos! Te esperamos para celebrar juntos este día tan especial. Dress Code: Formal.
+END:VEVENT
+END:VCALENDAR`;
+            
+            // Detecta si es dispositivo Apple (iOS Safari)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            if (isIOS) {
+                // En iPhone usamos un enlace Data URI que es aceptado nativamente por la App Calendario
+                const uri = "data:text/calendar;charset=utf8," + encodeURIComponent(icsContent);
+                window.location.href = uri;
+            } else {
+                // En Android / PC usamos la forma estándar de descarga
+                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'boda_alex_y_valery.ics';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
             }
         }
 
