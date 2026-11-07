@@ -625,48 +625,55 @@
                         </div>
                     </div>
                 </div>
-                <!-- RSVP -->
+                <!-- RSVP (Ocupa toda la pantalla pero el formulario queda centrado) -->
                 <div id="rsvp" class="py-16 px-6 text-center bg-[#e0dcd1] border-b border-[#d3cbb9] w-full">
-                    <h2 class="font-serif-elegant text-3xl tracking-widest mb-4 text-[#2b352d]">CONFIRMAR<br>ASISTENCIA</h2>
-                    <!-- NUEVAS NOTAS DE CONFIRMACIÓN -->
-                    <div class="bg-white/40 border border-gray-300 rounded-lg p-5 mb-8 text-left max-w-sm mx-auto shadow-sm">
-                        <ul class="font-serif-elegant text-[13px] text-gray-800 space-y-3">
-                            <li class="flex items-start">
-                                <span class="mr-2 font-bold text-[#4a5d4e]">1.</span> 
-                                Por favor busca tu nombre en la lista y confirma tu asistencia (Antes del 1 de Diciembre)..
-                            </li>
-                            <li class="flex items-start">
-                                <span class="mr-2 font-bold text-[#4a5d4e]">3.</span> 
-                                Evitar llevar acompañantes no incluidos en la invitación (pases asignados).
-                            </li>
-                        </ul>
+                    <div class="max-w-lg mx-auto">
+                        <h2 class="font-serif-elegant text-3xl tracking-widest mb-4 text-[#2b352d]">CONFIRMAR<br>ASISTENCIA</h2>
+                        
+                        <div class="bg-white/40 border border-gray-300 rounded-lg p-5 mb-8 text-left max-w-sm mx-auto shadow-sm">
+                            <ul class="font-serif-elegant text-[13px] text-gray-800 space-y-3">
+                                <li class="flex items-start">
+                                    <span class="mr-2 font-bold text-[#4a5d4e]">1.</span> 
+                                    Por favor busca tu nombre en la lista y confirma tu asistencia.
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2 font-bold text-[#4a5d4e]">2.</span> 
+                                    Por favor, confirma tu asistencia con anticipación (Antes del 1 de Diciembre).
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2 font-bold text-[#4a5d4e]">3.</span> 
+                                    Evitar llevar acompañantes no incluidos en la invitación (pases asignados).
+                                </li>
+                            </ul>
+                        </div>
+
+                        <form id="rsvp-form" class="max-w-sm mx-auto text-left">
+                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">TU NOMBRE</label>
+                            <input list="lista-invitados" id="nombre-invitado" name="nombre" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Toca para buscar tu nombre..." required>
+                            
+                            <datalist id="lista-invitados">
+                                <option value="Familia Cetino"></option>
+                                <option value="Valery y Alex"></option>
+                                <option value="Tío Tico y Familia"></option>
+                                <option value="Dylan"></option>
+                                <option value="Luis y Acompañante"></option>
+                            </datalist>
+
+                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">¿ASISTIRÁS?</label>
+                            <select id="asistencia" name="asistencia" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" required>
+                                <option value="" disabled selected>Selecciona una opción</option>
+                                <option value="Si, ahí estaré">Sí, ahí estaré con mucha alegría</option>
+                                <option value="No podre asistir">Lamentablemente no podré asistir</option>
+                            </select>
+                            
+                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">MENSAJE (OPCIONAL)</label>
+                            <textarea name="mensaje" rows="2" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Déjanos un mensaje..."></textarea>
+
+                            <button type="submit" class="w-full bg-[#4a5d4e] text-white font-cinzel tracking-widest py-4 mt-2 hover:bg-[#3e4f42] transition-colors shadow-md">
+                                ENVIAR CONFIRMACIÓN
+                            </button>
+                        </form>
                     </div>
-                    <form id="rsvp-form" class="max-w-sm mx-auto text-left">
-                        <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">TU NOMBRE</label>
-                        <input list="lista-invitados" id="nombre-invitado" name="nombre" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Toca para buscar tu nombre..." required>
-                        
-                        <datalist id="lista-invitados">
-                            <option value="Familia Mendez"></option>
-                            <option value="Valery y Alex"></option>
-                            <option value="Lisa Estrada"></option>
-                            <option value="Deborah Alvarado"></option>
-                            <option value="Kathia Mendez"></option>
-                        </datalist>
-
-                        <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">¿ASISTIRÁS?</label>
-                        <select id="asistencia" name="asistencia" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" required>
-                            <option value="" disabled selected>Selecciona una opción</option>
-                            <option value="Si, ahí estaré">Sí, ahí estaré con mucha alegría</option>
-                            <option value="No podre asistir">Lamentablemente no podré asistir</option>
-                        </select>
-                        
-                        <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">MENSAJE (OPCIONAL)</label>
-                        <textarea name="mensaje" rows="2" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Déjanos un mensaje..."></textarea>
-
-                        <button type="submit" class="w-full bg-[#4a5d4e] text-white font-cinzel tracking-widest py-4 mt-2 hover:bg-[#3e4f42] transition-colors shadow-md">
-                            ENVIAR CONFIRMACIÓN
-                        </button>
-                    </form>
                 </div>
                 
                 <!-- Footer -->
@@ -728,7 +735,7 @@
                 setTimeout(() => {
                     const scrollWrapper = document.getElementById('scroll-wrapper');
                     scrollWrapper.classList.remove('overflow-hidden');
-                    scrollWrapper.classList.add('overflow-y-auto');
+                    scrollWrapper.classList.add('overflow-y-auto', 'overflow-x-hidden');
                 }, 1000); 
 
             }, 1800); 
