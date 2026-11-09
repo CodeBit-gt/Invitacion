@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color-meta" content="#1a2421">
     <title>Boda Alex y Valery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
     <style>
+
         html, body {
-            background-color: #f4f1eb;
+            background-color: #1a2421; /* Antes era #f4f1eb */
             margin: 0;
             padding: 0;
             width: 100%;
@@ -16,6 +18,7 @@
             max-width: 100%;
             overscroll-behavior: none;
             overflow-x: hidden !important;
+            transition: background-color 1.5s ease; /* Transición suave */
         }
 
         body {
@@ -267,11 +270,13 @@
             opacity: 1;
             margin-top: 1.5rem;
         }
+        
 
         input::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
     </style>
 </head>
 <body class="antialiased text-gray-800">
+
 
     <div id="app-container" class="w-full max-w-none mx-0 relative h-[100dvh] overflow-hidden bg-[#f4f1eb]">
         
@@ -290,11 +295,6 @@
                 <!-- El Sobre -->
                 <div class="envelope-wrapper scale-[0.98] sm:scale-103 md:scale-118 relative z-10">
                     
-                    <!-- SOLUCIÓN: Hojas otoñales movidas adentro del 'envelope-wrapper' -->
-                    <!-- Ahora el 'absolute' se calcula desde el borde derecho del sobre -->
-                    <div id="pampas-decor" class="absolute -right-5 top-10 w-56 h-56 opacity-0 transition-opacity duration-1000 z-20 pointer-events-none">
-                        <img src="decoracion.png" alt="Pampas Decorativas" class="w-full h-full object-contain rotate-[12deg] opacity-80 mix-blend-multiply">
-                    </div>
 
                     <div class="envelope-back"></div>
 
@@ -773,6 +773,8 @@
             // 2. Transición del sello de cera (NO desaparece, se reduce y baja)
             sealContainer.classList.add('open');
 
+
+
             // 3. Sistema de 2 Solapas para asegurar el triángulo de fondo
             flapTop.classList.add('open');    // Cierra la frontal
             flapTopUp.classList.add('open');  // Levanta la trasera para que quede el triángulo apuntando arriba
@@ -784,15 +786,20 @@
 
             // 4. Activar la transición principal de layout
             setTimeout(() => {
+                // Empiezan a caer las hojas de otoño
+                if (window.iniciarHojasOtono) window.iniciarHojasOtono();
                 document.getElementById('dark-bg').style.opacity = '0';
-                
+
+                // NUEVO: Transicionar los márgenes y barra del navegador al color claro
+                document.body.style.backgroundColor = '#f4f1eb';
+                document.documentElement.style.backgroundColor = '#f4f1eb';
+                document.getElementById('theme-color-meta').setAttribute('content', '#f4f1eb');
+                            
                 // Mover el sobre arriba con un amplio margen
                 const positioner = document.getElementById('envelope-positioner');
                 positioner.classList.remove('mt-[25vh]'); 
                 positioner.classList.add('mt-40'); 
                 
-                // Mostrar la pampa
-                document.getElementById('pampas-decor').style.opacity = '1';
 
                 // Activar el resto de la invitación
                 const details = document.getElementById('invitation-details');
@@ -901,6 +908,257 @@ END:VCALENDAR`;
                 this.reset();
             }, 1500);
         });
+
+
+        // ===== HOJAS DE OTOÑO CAYENDO (SVG) =====
+        (function () {
+            'use strict';
+
+            /* =====================================================
+               HOJAS DE OTOÑO (SVG) - formas y colores de la foto
+               ===================================================== */
+
+            const rad = g => g * Math.PI / 180;
+            const n1 = n => Math.round(n * 10) / 10;
+            const sim = (a, L, w, p) => (a === 0 ? [[0, L, w, p]] : [[-a, L, w, p], [a, L, w, p]]);
+            // Onda triangular 0..1..0 (para los "dientes" del borde)
+            const diente = x => { const s = ((x % 1) + 1) % 1; return Math.pow(1 - Math.abs(2 * s - 1), 2); };
+
+            /* ---------- Hoja palmeada (arce, vid, etc.) ---------- */
+            function palmada(o) {
+                const cx = 50, cy = o.cy || 78, base = o.base || 20;
+                let pts = '';
+                for (let g = -160; g <= 160; g += 1.5) {
+                    let r = base;
+                    for (const [a, L, w, p] of o.lobulos) {
+                        const t = Math.abs(g - a) / w;
+                        if (t < 1) r = Math.max(r, L * (1 - Math.pow(t, p || 1.7)));
+                    }
+                    if (o.dientes && r > 20) r *= 1 + o.amp * (diente(g * o.dientes + 0.5) - 0.4);
+                    pts += (n1(cx + r * Math.sin(rad(g)))) + ' ' + (n1(cy - r * Math.cos(rad(g)))) + ' ';
+                }
+                const cuerpo = `M${cx} ${cy}L${pts}Z`;
+
+                let venas = '';
+                for (const [a, L] of o.lobulos) {
+                    if (L < 24) continue;
+                    const s = Math.sin(rad(a)), c = Math.cos(rad(a));
+                    venas += `M${cx} ${cy}L${n1(cx + 0.86 * L * s)} ${n1(cy - 0.86 * L * c)}`;
+                    if (L > 40) {
+                        for (const k of [0.42, 0.64]) {
+                            for (const d of [-38, 38]) {
+                                const px = cx + k * L * s, py = cy - k * L * c;
+                                const ar = rad(a + d), len = 0.24 * L;
+                                venas += `M${n1(px)} ${n1(py)}L${n1(px + len * Math.sin(ar))} ${n1(py - len * Math.cos(ar))}`;
+                            }
+                        }
+                    }
+                }
+                const tallo = `M${cx} ${cy}Q${cx + (o.curva || 0)} ${n1((cy + 99) / 2)} ${cx + (o.curva || 0) * 1.6} 99`;
+                return { cuerpo, venas, tallo, anchoTallo: o.anchoTallo || 2.4 };
+            }
+
+            /* ---------- Hoja alargada (roble, tilo/corazón) ---------- */
+            function alargada(o) {
+                const y0 = 90, y1 = 6, N = 90;
+                const izq = [], der = [];
+                for (let i = 0; i <= N; i++) {
+                    const t = i / N, y = y0 + (y1 - y0) * t;
+                    let hw = o.hw(t);
+                    if (o.dientes) hw *= 1 + o.amp * (diente(t * o.dientes) - 0.4);
+                    izq.push(n1(50 - hw) + ' ' + n1(y));
+                    der.push(n1(50 + hw) + ' ' + n1(y));
+                }
+                const cuerpo = `M50 ${y0}L${izq.join(' ')} ${der.reverse().join(' ')}Z`;
+
+                let venas = `M50 ${y0}L50 ${n1(y0 + (y1 - y0) * 0.94)}`;
+                for (const t of o.venasEn) {
+                    const y = y0 + (y1 - y0) * t, y2 = y0 + (y1 - y0) * (t + o.avance);
+                    const hw = o.hw(Math.min(t + o.avance, 0.98)) * 0.86;
+                    for (const s of [-1, 1]) {
+                        venas += `M50 ${n1(y)}Q${n1(50 + s * hw * 0.5)} ${n1(y - 1)} ${n1(50 + s * hw)} ${n1(y2)}`;
+                    }
+                }
+                const tallo = 'M50 ' + y0 + 'Q50 95 ' + (50 + (o.curva || 0)) + ' 99';
+                return { cuerpo, venas, tallo, anchoTallo: 2.4 };
+            }
+
+            /* ---------- Hoja compuesta (ramita con foliolos) ---------- */
+            function compuesta() {
+                const P0 = [40, 99], P1 = [44, 48], P2 = [64, 5];
+                const B = s => [
+                    (1 - s) * (1 - s) * P0[0] + 2 * (1 - s) * s * P1[0] + s * s * P2[0],
+                    (1 - s) * (1 - s) * P0[1] + 2 * (1 - s) * s * P1[1] + s * s * P2[1]
+                ];
+                const ang = s => {
+                    const dx = 2 * (1 - s) * (P1[0] - P0[0]) + 2 * s * (P2[0] - P1[0]);
+                    const dy = 2 * (1 - s) * (P1[1] - P0[1]) + 2 * s * (P2[1] - P1[1]);
+                    return Math.atan2(dy, dx) * 180 / Math.PI;
+                };
+                const foliolo = (l, w) =>
+                    `M0 0C${n1(l * .25)} ${-w} ${n1(l * .7)} ${n1(-w * .95)} ${l} 0C${n1(l * .7)} ${n1(w * .95)} ${n1(l * .25)} ${w} 0 0Z`;
+                const nervios = (l, w) => {
+                    let d = `M0 0L${n1(l * .94)} 0`;
+                    for (const k of [.28, .46, .64, .8]) {
+                        d += `M${n1(l * k)} 0L${n1(l * (k + .12))} ${n1(-w * .72)}M${n1(l * k)} 0L${n1(l * (k + .12))} ${n1(w * .72)}`;
+                    }
+                    return d;
+                };
+                let cuerpo = '', venas = '';
+                const poner = (s, delta, l, w) => {
+                    const [x, y] = B(s), a = ang(s) + delta;
+                    const tr = `transform="translate(${n1(x)} ${n1(y)}) rotate(${n1(a)})"`;
+                    cuerpo += `<path ${tr} d="${foliolo(l, w)}"/>`;
+                    venas += `<path ${tr} d="${nervios(l, w)}"/>`;
+                };
+                for (let i = 0; i < 6; i++) {
+                    const s = 0.14 + i * 0.125, l = 31 - i * 3.2, w = 7.2 - i * 0.55;
+                    poner(s, -58, l, w);
+                    poner(s + 0.06, 58, l, w);
+                }
+                poner(0.99, 0, 20, 5.4); // foliolo terminal
+                return { compuesta: true, cuerpo, venas, tallo: `M${P0[0]} ${P0[1]}Q${P1[0]} ${P1[1]} ${P2[0]} ${P2[1]}`, anchoTallo: 1.8 };
+            }
+
+            /* ---------- Los 10 tipos de la foto, con sus colores ---------- */
+            const TIPOS = [
+                // 1. Arce naranja
+                { color: ['#e47a3c', '#b5501f'], forma: palmada({ cy: 76, curva: -2, dientes: 1 / 6, amp: 0.05, lobulos: [...sim(0, 66, 30, 2.3), ...sim(50, 60, 28, 2.3), ...sim(98, 40, 26, 2.3)] }) },
+                // 2. Arce rojo
+                { color: ['#c63a33', '#8c2024'], forma: palmada({ cy: 74, curva: 2, dientes: 1 / 7, amp: 0.05, lobulos: [...sim(0, 64, 29, 2.1), ...sim(54, 62, 28, 2.1), ...sim(104, 38, 26, 2.1)] }) },
+                // 3. Vid / hoja oliva oscura (lóbulos redondeados)
+                { color: ['#6e6425', '#443d12'], forma: palmada({ cy: 70, curva: 4, base: 24, dientes: 1 / 14, amp: 0.05, lobulos: [...sim(0, 58, 34, 3), ...sim(64, 54, 34, 3), ...sim(120, 32, 28, 2.6)] }) },
+                // 4. Arce rojizo (tallo largo)
+                { color: ['#c4663a', '#93441f'], forma: palmada({ cy: 62, curva: -6, anchoTallo: 1.6, dientes: 1 / 6, amp: 0.05, lobulos: [...sim(0, 56, 27, 2.2), ...sim(52, 54, 26, 2.2), ...sim(102, 34, 24, 2.2)] }) },
+                // 5. Hoja de tilo (corazón con nervadura fina)
+                {
+                    color: ['#9b8f50', '#6f6535'], forma: alargada({
+                        hw: t => 39 * Math.pow(Math.sin(Math.PI * Math.pow(t, 0.72)), 1.1), dientes: 22, amp: 0.04,
+                        venasEn: [0.12, 0.24, 0.36, 0.48, 0.6, 0.72], avance: 0.14, curva: -6
+                    })
+                },
+                // 6. Hoja compuesta verde
+                { color: ['#58806a', '#355d49'], forma: compuesta() },
+                // 7. Roble amarillo
+                {
+                    color: ['#dcab43', '#b0801f'], forma: alargada({
+                        hw: t => 26 * Math.pow(Math.sin(Math.PI * Math.pow(t, 1.15)), 0.8) * (0.5 + 0.5 * Math.pow(0.5 - 0.5 * Math.cos(2 * Math.PI * 3.6 * t), 0.75)),
+                        venasEn: [0.14, 0.3, 0.46, 0.62, 0.78], avance: 0.1
+                    })
+                },
+                // 8. Hoja marrón (3 lóbulos apuntados)
+                { color: ['#9c5d3f', '#6b3722'], forma: palmada({ cy: 66, curva: -5, anchoTallo: 2, dientes: 1 / 9, amp: 0.05, lobulos: [...sim(0, 64, 26, 2), ...sim(52, 52, 26, 2), ...sim(104, 30, 22, 2)] }) },
+                // 9. Hoja oliva-amarilla (3 lóbulos anchos)
+                { color: ['#b9aa62', '#8a7c37'], forma: palmada({ cy: 76, curva: 2, lobulos: [...sim(0, 64, 34, 1.9), ...sim(62, 58, 32, 1.9), ...sim(116, 26, 26, 1.9)] }) },
+                // 10. Hoja verde (3 lóbulos con borde dentado)
+                { color: ['#5f7f49', '#3a5a2c'], forma: palmada({ cy: 72, curva: 3, dientes: 1 / 11, amp: 0.05, lobulos: [...sim(0, 62, 32, 2.2), ...sim(60, 54, 32, 2.2), ...sim(112, 30, 26, 2.2)] }) }
+            ];
+
+            function construirSVG(tipo, i) {
+                const f = tipo.forma, rel = 'url(#hoja-grad-' + i + ')', c2 = tipo.color[1];
+                const cuerpo = f.compuesta
+                    ? `<g fill="${rel}">${f.cuerpo}</g>`
+                    : `<path d="${f.cuerpo}" fill="${rel}"/>`;
+                // venas finas: una línea oscura delicada + un reflejo muy tenue
+                const venas = f.compuesta
+                    ? `<g fill="none" stroke="rgba(40,20,5,.30)" stroke-width=".7" stroke-linecap="round">${f.venas}</g>`
+                    : `<path d="${f.venas}" fill="none" stroke="rgba(40,20,5,.28)" stroke-width=".9" stroke-linecap="round"/>` +
+                      `<path d="${f.venas}" fill="none" stroke="rgba(255,240,215,.22)" stroke-width=".5" stroke-linecap="round" transform="translate(.6 .6)"/>`;
+                const tallo = `<path d="${f.tallo}" fill="none" stroke="${c2}" stroke-width="${f.anchoTallo * 0.7}" stroke-linecap="round"/>`;
+                return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;overflow:visible">${tallo}${cuerpo}${venas}</svg>`;
+            }
+
+            // Degradados (definidos una sola vez, las hojas los reutilizan)
+            const DEFS = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
+                TIPOS.map((t, i) => `<linearGradient id="hoja-grad-${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${t.color[0]}"/><stop offset="1" stop-color="${t.color[1]}"/></linearGradient>`).join('') +
+                '</defs></svg>';
+
+
+            const SVGS = TIPOS.map(construirSVG);
+
+            /* =====================================================
+               CAÍDA DE LAS HOJAS
+               ===================================================== */
+            let hojasIniciadas = false;
+            function iniciarHojas() {
+                if (hojasIniciadas) return;
+                hojasIniciadas = true;
+                const MAX_HOJAS = 22;
+                const rnd = (a, b) => a + Math.random() * (b - a);
+
+                const contenedor = document.createElement('div');
+                contenedor.setAttribute('aria-hidden', 'true');
+                contenedor.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden;';
+                contenedor.innerHTML = DEFS;
+                document.body.appendChild(contenedor);
+
+                const estilos = document.createElement('style');
+                estilos.textContent = `
+                    .hoja-caida {
+                        position: absolute; top: 0; left: 0;
+                        will-change: transform, opacity;
+                        filter: drop-shadow(0 2px 2px rgba(60,30,10,.16));
+                        animation: hoja-caida var(--dur) linear forwards;
+                    }
+                    .hoja-vaiven {
+                        width: 100%; height: 100%;
+                        animation: hoja-vaiven var(--vaiven) ease-in-out infinite alternate;
+                    }
+                    .hoja-giro {
+                        width: 100%; height: 100%;
+                        animation: hoja-giro var(--giro) ease-in-out infinite alternate;
+                    }
+                    @keyframes hoja-caida {
+                        0%   { transform: translate3d(0, -70px, 0); opacity: 0; }
+                        10%  { opacity: .88; }
+                        85%  { opacity: .88; }
+                        100% { transform: translate3d(var(--dx), calc(100vh + 70px), 0); opacity: 0; }
+                    }
+                    @keyframes hoja-vaiven {
+                        from { transform: translateX(calc(var(--amp) * -1)); }
+                        to   { transform: translateX(var(--amp)); }
+                    }
+                    @keyframes hoja-giro {
+                        from { transform: rotate(var(--r0)) perspective(180px) rotateY(0deg); }
+                        to   { transform: rotate(var(--r1)) perspective(180px) rotateY(var(--ry)); }
+                    }
+                `;
+                document.head.appendChild(estilos);
+
+                function crearHoja(adelantada) {
+                    if (document.hidden || contenedor.childElementCount >= MAX_HOJAS) return;
+
+                    const dur = rnd(13, 22);
+                    const tam = rnd(22, 38);
+                    const r0 = rnd(-40, 40);
+
+                    const hoja = document.createElement('div');
+                    hoja.className = 'hoja-caida';
+                    hoja.style.left = rnd(-3, 97) + 'vw';
+                    hoja.style.width = hoja.style.height = tam + 'px';
+                    hoja.style.setProperty('--dur', dur + 's');
+                    hoja.style.setProperty('--dx', rnd(-60, 60) + 'px');
+                    // Las primeras hojas ya van a mitad de camino para que no empiece vacío
+                    if (adelantada) hoja.style.animationDelay = (-rnd(0, dur * 0.8)) + 's';
+
+                    hoja.innerHTML =
+                        '<div class="hoja-vaiven" style="--vaiven:' + rnd(3.5, 6) + 's;--amp:' + rnd(8, 18) + 'px">' +
+                        '<div class="hoja-giro" style="--giro:' + rnd(3.5, 6) + 's;--r0:' + r0 + 'deg;--r1:' + (r0 + rnd(25, 70) * (Math.random() < .5 ? -1 : 1)) + 'deg;--ry:' + rnd(35, 60) * (Math.random() < .5 ? -1 : 1) + 'deg">' +
+                        SVGS[Math.floor(Math.random() * SVGS.length)] +
+                        '</div></div>';
+
+                    hoja.addEventListener('animationend', e => { if (e.target === hoja) hoja.remove(); });
+                    contenedor.appendChild(hoja);
+                }
+
+                // Primeras hojas escalonadas desde arriba, luego una nueva cada 1.3 s
+                for (let i = 0; i < 5; i++) setTimeout(() => crearHoja(false), i * 500);
+                setInterval(() => crearHoja(false), 1300);
+            }
+
+            // Se activan cuando se abre el sobre (ver abrirSobre)
+            window.iniciarHojasOtono = iniciarHojas;
+        })();
     </script>
 </body>
 </html>
