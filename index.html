@@ -693,8 +693,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- RSVP (Ocupa toda la pantalla pero el formulario queda centrado) -->
-                 <!-- RSVP -->
+
+                <!-- RSVP: 100% Automático (Sin caja de búsqueda) -->
                 <div id="rsvp" class="py-16 px-6 text-center bg-[#e0dcd1] border-b border-[#d3cbb9] w-full">
                     <div class="max-w-lg mx-auto">
                         <h2 class="font-serif-elegant text-3xl tracking-widest mb-4 text-[#2b352d]">CONFIRMAR<br>ASISTENCIA</h2>
@@ -703,7 +703,7 @@
                             <ul class="font-serif-elegant text-[13px] text-gray-800 space-y-3">
                                 <li class="flex items-start">
                                     <span class="mr-2 font-bold text-[#4a5d4e]">1.</span> 
-                                    Busca tu nombre tal como aparece en el sobre para ver tus pases asignados.
+                                    Revisa los pases asignados a tu nombre.
                                 </li>
                                 <li class="flex items-start">
                                     <span class="mr-2 font-bold text-[#4a5d4e]">2.</span> 
@@ -712,25 +712,25 @@
                             </ul>
                         </div>
 
-                        <!-- BUSCADOR -->
-                        <div id="rsvp-search-container" class="max-w-sm mx-auto text-left">
-                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">TU NOMBRE Y APELLIDO</label>
-                            <div class="flex gap-2 mb-2">
-                                <input id="nombre-buscar" type="text" class="w-full p-4 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Ej. Javier Méndez">
-                                <button type="button" onclick="buscarInvitado()" class="bg-[#4a5d4e] text-white px-6 font-cinzel text-xs font-bold tracking-widest hover:bg-[#3e4f42] transition-colors shadow-md">BUSCAR</button>
-                            </div>
-                            <p id="error-msg" class="text-red-600 font-serif-elegant text-xs hidden">No encontramos el nombre. Revisa la escritura.</p>
+                        <!-- MENSAJE DE CARGA -->
+                        <div id="cargando-rsvp" class="max-w-sm mx-auto text-center py-8">
+                            <p class="font-serif-elegant text-[#4a5d4e] italic animate-pulse">Cargando tus pases...</p>
+                        </div>
+
+                        <!-- MENSAJE DE ERROR (Oculto al inicio) -->
+                        <div id="error-rsvp" class="max-w-sm mx-auto text-center py-8 hidden">
+                            <p class="font-serif-elegant text-red-600 text-sm">Lo sentimos, no pudimos cargar tus pases. Por favor, contacta a los novios directamente.</p>
                         </div>
 
                         <!-- FORMULARIO DE CHECKBOXES (Oculto al inicio) -->
-                        <form id="rsvp-form" class="max-w-sm mx-auto text-left hidden mt-6">
+                        <form id="rsvp-form" class="max-w-sm mx-auto text-left hidden">
                             <input type="hidden" id="fila-sheet">
                             
                             <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">PASES ASIGNADOS PARA:</label>
                             <p id="nombre-encontrado" class="font-script text-3xl mb-4 text-[#2b352d]"></p>
                             
                             <div id="lista-acompanantes" class="space-y-3 mb-8 bg-white/60 p-4 border border-gray-300 rounded-lg shadow-sm">
-                                <!-- Checkboxes inyectados por JS -->
+                                <!-- Los Checkboxes se inyectarán aquí automáticamente -->
                             </div>
 
                             <button type="submit" class="w-full bg-[#4a5d4e] text-white font-cinzel tracking-widest py-4 mt-2 hover:bg-[#3e4f42] transition-colors shadow-md font-bold">
@@ -873,87 +873,55 @@ END:VCALENDAR`;
             document.getElementById("segundos").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }, 1000);
 
-        // Cargar la lista completa y AUTO-SELECCIONAR al invitado de la URL
+        // =========================================================
+        // LÓGICA RSVP: 100% AUTOMÁTICA DESDE LA URL
+        // =========================================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMCo9UUa2gS4HbuTjism19nufW74z1l3MaHACOsZqVKM3byeFF_1LpMsv41Tj9tz_k/exec'; 
+
+        const normalizarTexto = (texto) => {
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        };
+
         document.addEventListener("DOMContentLoaded", async () => {
-            // 1. Poner el nombre en la parte exterior del sobre
+            // 1. Leer el nombre de la URL
             const urlParams = new URLSearchParams(window.location.search);
             const nombreUrl = urlParams.get('invitado');
             const envelopeName = document.getElementById('guest-name');
             
+            // Escribir el nombre en el sobre
             if (nombreUrl) {
                 envelopeName.innerText = nombreUrl;
             } else {
                 envelopeName.innerText = "Nuestra Boda";
+                document.getElementById('cargando-rsvp').classList.add('hidden');
+                document.getElementById('error-rsvp').classList.remove('hidden');
+                return; // Detener ejecución si no hay nombre en el link
             }
 
-            // 2. Descargar los datos de Google Sheets silenciosamente
+            // 2. Conectar a Google Sheets para buscar los pases
             try {
                 const res = await fetch(SCRIPT_URL);
-                todosLosInvitados = await res.json();
+                const todosLosInvitados = await res.json();
                 
-                // 3. MAGIA: Si hay un nombre en la URL, lo buscamos y auto-seleccionamos
-                if (nombreUrl) {
-                    const nombreNormalizado = normalizarTexto(nombreUrl);
-                    
-                    // Busca a la persona en la lista descargada (ignorando tildes y mayúsculas)
-                    const invitadoEncontrado = todosLosInvitados.find(inv => 
-                        normalizarTexto(inv.nombre) === nombreNormalizado
-                    );
-                    
-                    if (invitadoEncontrado) {
-                        // Ejecutamos la función que dibuja los checkboxes directamente
-                        seleccionarInvitado(invitadoEncontrado);
-                        document.getElementById('cargando-msg').classList.add('hidden');
-                        return; // Terminamos la ejecución aquí
-                    }
-                }
+                const nombreNormalizado = normalizarTexto(nombreUrl);
+                const invitadoEncontrado = todosLosInvitados.find(inv => 
+                    normalizarTexto(inv.nombre) === nombreNormalizado
+                );
                 
-                // PLAN DE RESPALDO: Si abrieron un link sin nombre o escribiste diferente el nombre 
-                // en la URL vs la base de datos, mostramos el buscador manual por si acaso.
-                document.getElementById('cargando-msg').innerText = "Lista cargada. Ya puedes buscar tu nombre.";
-                setTimeout(() => document.getElementById('cargando-msg').classList.add('hidden'), 3000);
-                
-            } catch(e) {
-                document.getElementById('cargando-msg').innerText = "Error cargando la lista. Recarga la página.";
-                document.getElementById('cargando-msg').classList.replace('text-[#4a5d4e]', 'text-red-600');
-            }
-        });
-
-        // Reemplaza esto por tu URL de Apps Script que ya tienes
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMCo9UUa2gS4HbuTjism19nufW74z1l3MaHACOsZqVKM3byeFF_1LpMsv41Tj9tz_k/exec'; 
-
-        async function buscarInvitado() {
-            const input = document.getElementById('nombre-buscar');
-            const nombre = input.value.trim();
-            const btn = document.querySelector('button[onclick="buscarInvitado()"]');
-            
-            if(!nombre) return;
-            
-            btn.innerText = '...';
-            document.getElementById('error-msg').classList.add('hidden');
-            
-            try {
-                // Hace un GET para buscar el nombre (ejecuta tu doGet)
-                const res = await fetch(`${SCRIPT_URL}?nombre=${encodeURIComponent(nombre)}`);
-                const data = await res.json();
-                
-                if(data.error) {
-                    document.getElementById('error-msg').classList.remove('hidden');
-                } else {
-                    // Oculta el buscador y muestra los checkboxes
-                    document.getElementById('rsvp-search-container').classList.add('hidden');
+                if (invitadoEncontrado) {
+                    // Se encontró: Ocultar carga y mostrar formulario
+                    document.getElementById('cargando-rsvp').classList.add('hidden');
                     const form = document.getElementById('rsvp-form');
                     form.classList.remove('hidden');
                     
-                    // Asigna los valores al formulario oculto
-                    document.getElementById('nombre-encontrado').innerText = data.nombre;
-                    document.getElementById('fila-sheet').value = data.row;
+                    document.getElementById('nombre-encontrado').innerText = invitadoEncontrado.nombre;
+                    document.getElementById('fila-sheet').value = invitadoEncontrado.row;
                     
-                    // Dibuja los checkboxes basados en los acompañantes que encontró en Google Sheets
+                    // Dibujar checkboxes
                     const contenedorLista = document.getElementById('lista-acompanantes');
                     contenedorLista.innerHTML = '';
                     
-                    const todos = [data.nombre, ...data.acompanantes];
+                    const todos = [invitadoEncontrado.nombre, ...invitadoEncontrado.acompanantes];
                     todos.forEach((persona) => {
                         contenedorLista.innerHTML += `
                             <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-white/80 rounded transition-colors">
@@ -962,15 +930,19 @@ END:VCALENDAR`;
                             </label>
                         `;
                     });
+                } else {
+                    // Si el nombre de la URL no coincide con la base de datos
+                    document.getElementById('cargando-rsvp').classList.add('hidden');
+                    document.getElementById('error-rsvp').classList.remove('hidden');
                 }
             } catch(e) {
-                document.getElementById('error-msg').innerText = "Error de conexión. Intenta de nuevo.";
-                document.getElementById('error-msg').classList.remove('hidden');
+                // Error de red
+                document.getElementById('cargando-rsvp').classList.add('hidden');
+                document.getElementById('error-rsvp').classList.remove('hidden');
             }
-            btn.innerText = 'BUSCAR';
-        }
+        });
 
-        // Enviar la actualización
+        // 3. Enviar confirmación de vuelta a Sheets
         document.getElementById('rsvp-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -980,18 +952,19 @@ END:VCALENDAR`;
             const checkboxes = document.querySelectorAll('.asistente-cb:checked');
             const cantidadConfirmada = checkboxes.length;
             const fila = document.getElementById('fila-sheet').value;
+            const nombreEncontrado = document.getElementById('nombre-encontrado').innerText;
             
             try {
-                // Ejecuta el doPost con la acción "update"
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
-                        'action': 'update', // Esto le dice al Apps Script que no agregue, que actualice
+                        'action': 'update', 
                         'fila': fila,
+                        'nombre_principal': nombreEncontrado, 
                         'asistencia': cantidadConfirmada > 0 ? 'Si' : 'No podre asistir',
-                        'cantidad': cantidadConfirmada
+                        'numero_asistentes': cantidadConfirmada 
                     })
                 });
                 
@@ -1004,7 +977,6 @@ END:VCALENDAR`;
                 btn.style.opacity = '1';
             }
         });
-
 
         // ===== HOJAS DE OTOÑO CAYENDO (SVG) =====
         (function () {
