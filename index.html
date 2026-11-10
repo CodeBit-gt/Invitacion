@@ -875,111 +875,114 @@ END:VCALENDAR`;
 
 
         // =========================================================
-        // LÓGICA RSVP: 100% COMPATIBLE CON GOOGLE APPS SCRIPT (CORS BYPASS)
+        // LÓGICA RSVP (Google Apps Script vía JSONP, sin problemas de CORS)
         // =========================================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMCo9UUa2gS4HbuTjism19nufW74z1l3MaHACOsZqVKM3byeFF_1LpMsv41Tj9tz_k/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMCo9UUa2gS4HbuTjism19nufW74z1l3MaHACOsZqVKM3byeFF_1LpMsv41Tj9tz_k/exec';
 
-        const normalizarTexto = (texto) => {
-            if (!texto) return "";
-            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-        };
+        // Nombre del invitado tomado del link (?invitado=Nombre%20Apellido)
+        const nombreInvitadoUrl = (new URLSearchParams(window.location.search).get('invitado') || '').trim();
 
-        // Función global que ejecutará Google Apps Script al responder
-        function recibirDatosInvitados(todosLosInvitados) {
-            const urlParams = new URLSearchParams(window.location.search);
-            let nombreUrl = urlParams.get('invitado');
-            const envelopeName = document.getElementById('guest-name');
-            
-            // 1. Poner el nombre en el sobre limpio (convierte %20 en espacios y quita espacios extra)
-            if (nombreUrl) {
-                nombreUrl = decodeURIComponent(nombreUrl).replace(/%20/g, ' ').trim();
-                envelopeName.innerText = nombreUrl;
-            } else {
-                envelopeName.innerText = "Nuestra Boda";
-                document.getElementById('cargando-rsvp').classList.add('hidden');
-                document.getElementById('error-rsvp').classList.remove('hidden');
+        function mostrarErrorRsvp() {
+            document.getElementById('cargando-rsvp').classList.add('hidden');
+            document.getElementById('error-rsvp').classList.remove('hidden');
+        }
+
+        // Google Apps Script llama a esta función con los datos del invitado
+        function recibirDatosInvitado(invitado) {
+            clearTimeout(window.__rsvpTimeout);
+
+            if (!invitado || invitado.error) {
+                mostrarErrorRsvp();
                 return;
             }
 
-            // 2. Buscar al invitado en la lista descargada
-            const nombreNormalizado = normalizarTexto(nombreUrl);
-            const invitadoEncontrado = todosLosInvitados.find(inv => 
-                normalizarTexto(inv.nombre).includes(nombreNormalizado)
-            );
-            
-            if (invitadoEncontrado) {
-                // Se encontró: Ocultar carga y mostrar formulario
-                document.getElementById('cargando-rsvp').classList.add('hidden');
-                const form = document.getElementById('rsvp-form');
-                form.classList.remove('hidden');
-                
-                document.getElementById('nombre-encontrado').innerText = invitadoEncontrado.nombre;
-                document.getElementById('fila-sheet').value = invitadoEncontrado.row;
-                
-                // Dibujar los checkboxes con los acompañantes reales de Sheets
-                const contenedorLista = document.getElementById('lista-acompanantes');
-                contenedorLista.innerHTML = '';
-                
-                const todos = [invitadoEncontrado.nombre, ...invitadoEncontrado.acompanantes];
-                todos.forEach((persona) => {
-                    contenedorLista.innerHTML += `
-                        <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-white/80 rounded transition-colors">
-                            <input type="checkbox" value="${persona}" class="asistente-cb form-checkbox h-5 w-5 text-[#4a5d4e] border-gray-400 rounded focus:ring-[#4a5d4e]" checked>
-                            <span class="font-serif-elegant text-[15px] text-gray-800">${persona}</span>
-                        </label>
-                    `;
-                });
-            } else {
-                // No se encontró el nombre en la base de datos
-                document.getElementById('cargando-rsvp').classList.add('hidden');
-                document.getElementById('error-rsvp').classList.remove('hidden');
-            }
+            document.getElementById('cargando-rsvp').classList.add('hidden');
+            document.getElementById('rsvp-form').classList.remove('hidden');
+
+            document.getElementById('nombre-encontrado').textContent = invitado.nombre;
+            document.getElementById('fila-sheet').value = invitado.row;
+
+            // Dibujar un checkbox por persona (invitado principal + acompañantes)
+            const contenedor = document.getElementById('lista-acompanantes');
+            contenedor.innerHTML = '';
+            [invitado.nombre, ...(invitado.acompanantes || [])].forEach((persona) => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center space-x-3 cursor-pointer p-2 hover:bg-white/80 rounded transition-colors';
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = persona;
+                cb.checked = true;
+                cb.className = 'asistente-cb form-checkbox h-5 w-5 text-[#4a5d4e] border-gray-400 rounded focus:ring-[#4a5d4e]';
+
+                const span = document.createElement('span');
+                span.className = 'font-serif-elegant text-[15px] text-gray-800';
+                span.textContent = persona;
+
+                label.appendChild(cb);
+                label.appendChild(span);
+                contenedor.appendChild(label);
+            });
         }
 
-        // Cargar la lista al abrir la página usando un script dinámico (Evita CORS)
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener('DOMContentLoaded', () => {
+            const envelopeName = document.getElementById('guest-name');
+
+            // 1. El nombre en el sobre se muestra de inmediato, sin esperar a Google
+            if (!nombreInvitadoUrl) {
+                envelopeName.textContent = 'Nuestra Boda';
+                mostrarErrorRsvp();
+                return;
+            }
+            envelopeName.textContent = nombreInvitadoUrl;
+
+            // 2. Pedir a Google Sheets los acompañantes de ESTE invitado
             const scriptTag = document.createElement('script');
-            scriptTag.src = `${SCRIPT_URL}?callback=recibirDatosInvitados`;
-            scriptTag.onerror = () => {
-                document.getElementById('cargando-rsvp').classList.add('hidden');
-                document.getElementById('error-rsvp').classList.remove('hidden');
-            };
+            scriptTag.src = SCRIPT_URL
+                + '?nombre=' + encodeURIComponent(nombreInvitadoUrl)
+                + '&callback=recibirDatosInvitado'
+                + '&_=' + Date.now();
+            scriptTag.onerror = mostrarErrorRsvp;
             document.body.appendChild(scriptTag);
+
+            // Si Google no responde en 15 segundos, mostrar el error
+            window.__rsvpTimeout = setTimeout(mostrarErrorRsvp, 15000);
         });
 
         // 3. Enviar confirmación de vuelta a Sheets
-        document.getElementById('rsvp-form').addEventListener('submit', async function(e) {
+        document.getElementById('rsvp-form').addEventListener('submit', async function (e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             btn.innerText = 'ENVIANDO...';
             btn.style.opacity = '0.7';
-            
-            const checkboxes = document.querySelectorAll('.asistente-cb:checked');
-            const cantidadConfirmada = checkboxes.length;
+            btn.disabled = true;
+
+            const marcados = Array.from(document.querySelectorAll('.asistente-cb:checked')).map(cb => cb.value);
             const fila = document.getElementById('fila-sheet').value;
-            const nombreEncontrado = document.getElementById('nombre-encontrado').innerText;
-            
+            const nombreEncontrado = document.getElementById('nombre-encontrado').textContent;
+
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
-                        'action': 'update', 
+                        'action': 'update',
                         'fila': fila,
-                        'nombre_principal': nombreEncontrado, 
-                        'asistencia': cantidadConfirmada > 0 ? 'Si' : 'No podre asistir',
-                        'numero_asistentes': cantidadConfirmada 
+                        'nombre_principal': nombreEncontrado,
+                        'asistencia': marcados.length > 0 ? 'Si' : 'No podre asistir',
+                        'numero_asistentes': marcados.length,
+                        'nombres_confirmados': marcados.join(', ')
                     })
                 });
-                
+
                 btn.innerText = '¡CONFIRMACIÓN GUARDADA!';
                 btn.style.backgroundColor = '#2b352d';
                 btn.style.opacity = '1';
-                btn.disabled = true;
-            } catch(err) {
+            } catch (err) {
                 btn.innerText = 'ERROR, INTENTA DE NUEVO';
                 btn.style.opacity = '1';
+                btn.disabled = false;
             }
         });
 
