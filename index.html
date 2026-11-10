@@ -873,43 +873,38 @@ END:VCALENDAR`;
             document.getElementById("segundos").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }, 1000);
 
+
         // =========================================================
-        // LÓGICA RSVP: 100% AUTOMÁTICA DESDE LA URL
+        // LÓGICA RSVP: 100% COMPATIBLE CON GOOGLE APPS SCRIPT (CORS BYPASS)
         // =========================================================
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMCo9UUa2gS4HbuTjism19nufW74z1l3MaHACOsZqVKM3byeFF_1LpMsv41Tj9tz_k/exec'; 
 
         const normalizarTexto = (texto) => {
-            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            if (!texto) return "";
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
         };
 
-        document.addEventListener("DOMContentLoaded", async () => {
-        // 1. Leer el nombre de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        let nombreUrl = urlParams.get('invitado');
-        const envelopeName = document.getElementById('guest-name');
-        
-        // Escribir el nombre en el sobre
-        if (nombreUrl) {
-            // --- ARREGLO AQUÍ ---
-            // Reemplaza los %20 literales por espacios reales y limpia espacios en blanco al final
-            nombreUrl = nombreUrl.replace(/%20/g, ' ').trim(); 
-            envelopeName.innerText = nombreUrl;
-        } else {
-            envelopeName.innerText = "Nuestra Boda";
-            document.getElementById('cargando-rsvp').classList.add('hidden');
-            document.getElementById('error-rsvp').classList.remove('hidden');
-            return; // Detener ejecución si no hay nombre en el link
-        }
-
-        // 2. Conectar a Google Sheets para buscar los pases
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const todosLosInvitados = await res.json();
+        // Función global que ejecutará Google Apps Script al responder
+        function recibirDatosInvitados(todosLosInvitados) {
+            const urlParams = new URLSearchParams(window.location.search);
+            let nombreUrl = urlParams.get('invitado');
+            const envelopeName = document.getElementById('guest-name');
             
-            // Ahora buscará correctamente "javier mendez"
+            // 1. Poner el nombre en el sobre limpio (convierte %20 en espacios y quita espacios extra)
+            if (nombreUrl) {
+                nombreUrl = decodeURIComponent(nombreUrl).replace(/%20/g, ' ').trim();
+                envelopeName.innerText = nombreUrl;
+            } else {
+                envelopeName.innerText = "Nuestra Boda";
+                document.getElementById('cargando-rsvp').classList.add('hidden');
+                document.getElementById('error-rsvp').classList.remove('hidden');
+                return;
+            }
+
+            // 2. Buscar al invitado en la lista descargada
             const nombreNormalizado = normalizarTexto(nombreUrl);
             const invitadoEncontrado = todosLosInvitados.find(inv => 
-                normalizarTexto(inv.nombre).includes(nombreNormalizado) // Usamos includes por seguridad
+                normalizarTexto(inv.nombre).includes(nombreNormalizado)
             );
             
             if (invitadoEncontrado) {
@@ -921,7 +916,7 @@ END:VCALENDAR`;
                 document.getElementById('nombre-encontrado').innerText = invitadoEncontrado.nombre;
                 document.getElementById('fila-sheet').value = invitadoEncontrado.row;
                 
-                // Dibujar checkboxes
+                // Dibujar los checkboxes con los acompañantes reales de Sheets
                 const contenedorLista = document.getElementById('lista-acompanantes');
                 contenedorLista.innerHTML = '';
                 
@@ -935,16 +930,22 @@ END:VCALENDAR`;
                     `;
                 });
             } else {
-                // Si el nombre de la URL no coincide con la base de datos
+                // No se encontró el nombre en la base de datos
                 document.getElementById('cargando-rsvp').classList.add('hidden');
                 document.getElementById('error-rsvp').classList.remove('hidden');
             }
-        } catch(e) {
-            // Error de red
-            document.getElementById('cargando-rsvp').classList.add('hidden');
-            document.getElementById('error-rsvp').classList.remove('hidden');
         }
-    });
+
+        // Cargar la lista al abrir la página usando un script dinámico (Evita CORS)
+        document.addEventListener("DOMContentLoaded", () => {
+            const scriptTag = document.createElement('script');
+            scriptTag.src = `${SCRIPT_URL}?callback=recibirDatosInvitados`;
+            scriptTag.onerror = () => {
+                document.getElementById('cargando-rsvp').classList.add('hidden');
+                document.getElementById('error-rsvp').classList.remove('hidden');
+            };
+            document.body.appendChild(scriptTag);
+        });
 
         // 3. Enviar confirmación de vuelta a Sheets
         document.getElementById('rsvp-form').addEventListener('submit', async function(e) {
