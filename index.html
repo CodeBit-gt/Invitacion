@@ -393,10 +393,10 @@
 
                 <!-- FOTOS EXTRA: Arcos Superpuestos -->
                 <div class="flex justify-center items-center gap-3 px-6 mb-16 w-full">
-                    <div class="w-36 h-48 rounded-t-full overflow-hidden border-4 border-[#d3cbb9] shadow-lg transform -translate-y-4 bg-gray-200">
+                    <div class="w-36 h-55 rounded-t-full overflow-hidden border-4 border-[#d3cbb9] shadow-lg transform -translate-y-4 bg-gray-200">
                         <img src="fotonueva1.jpg" alt="Alex y Valery" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-36 h-48 rounded-t-full overflow-hidden border-4 border-[#d3cbb9] shadow-lg transform translate-y-4 bg-gray-200">
+                    <div class="w-36 h-55 rounded-t-full overflow-hidden border-4 border-[#d3cbb9] shadow-lg transform translate-y-4 bg-gray-200">
                         <img src="fotonueva2.jpg" alt="Alex y Valery" class="w-full h-full object-cover">
                     </div>
                 </div>
@@ -694,6 +694,7 @@
                     </div>
                 </div>
                 <!-- RSVP (Ocupa toda la pantalla pero el formulario queda centrado) -->
+                 <!-- RSVP -->
                 <div id="rsvp" class="py-16 px-6 text-center bg-[#e0dcd1] border-b border-[#d3cbb9] w-full">
                     <div class="max-w-lg mx-auto">
                         <h2 class="font-serif-elegant text-3xl tracking-widest mb-4 text-[#2b352d]">CONFIRMAR<br>ASISTENCIA</h2>
@@ -702,38 +703,37 @@
                             <ul class="font-serif-elegant text-[13px] text-gray-800 space-y-3">
                                 <li class="flex items-start">
                                     <span class="mr-2 font-bold text-[#4a5d4e]">1.</span> 
-                                    Por favor busca tu nombre en la lista y confirma tu asistencia (Antes del 1 de Diciembre).
+                                    Busca tu nombre tal como aparece en el sobre para ver tus pases asignados.
                                 </li>
                                 <li class="flex items-start">
-                                    <span class="mr-2 font-bold text-[#4a5d4e]">3.</span> 
-                                    Evitar llevar acompañantes no incluidos en la invitación (pases asignados).
+                                    <span class="mr-2 font-bold text-[#4a5d4e]">2.</span> 
+                                    Marca únicamente a las personas que asistirán.
                                 </li>
                             </ul>
                         </div>
 
-                        <form id="rsvp-form" class="max-w-sm mx-auto text-left">
-                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">TU NOMBRE</label>
-                            <input list="lista-invitados" id="nombre-invitado" name="nombre" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Toca para buscar tu nombre..." required>
-                            
-                            <datalist id="lista-invitados">
-                                <option value="Familia Cetino"></option>
-                                <option value="Valery y Alex"></option>
-                                <option value="Tío Tico y Familia"></option>
-                                <option value="Dylan"></option>
-                                <option value="Luis y Acompañante"></option>
-                            </datalist>
+                        <!-- BUSCADOR -->
+                        <div id="rsvp-search-container" class="max-w-sm mx-auto text-left">
+                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">TU NOMBRE Y APELLIDO</label>
+                            <div class="flex gap-2 mb-2">
+                                <input id="nombre-buscar" type="text" class="w-full p-4 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Ej. Javier Méndez">
+                                <button type="button" onclick="buscarInvitado()" class="bg-[#4a5d4e] text-white px-6 font-cinzel text-xs font-bold tracking-widest hover:bg-[#3e4f42] transition-colors shadow-md">BUSCAR</button>
+                            </div>
+                            <p id="error-msg" class="text-red-600 font-serif-elegant text-xs hidden">No encontramos el nombre. Revisa la escritura.</p>
+                        </div>
 
-                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">¿ASISTIRÁS?</label>
-                            <select id="asistencia" name="asistencia" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" required>
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                <option value="Si, ahí estaré">Sí, ahí estaré con mucha alegría</option>
-                                <option value="No podre asistir">Lamentablemente no podré asistir</option>
-                            </select>
+                        <!-- FORMULARIO DE CHECKBOXES (Oculto al inicio) -->
+                        <form id="rsvp-form" class="max-w-sm mx-auto text-left hidden mt-6">
+                            <input type="hidden" id="fila-sheet">
                             
-                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">MENSAJE (OPCIONAL)</label>
-                            <textarea name="mensaje" rows="2" class="w-full p-4 mb-6 border border-gray-400 bg-[#f4f1eb] font-serif-elegant text-gray-800 focus:outline-none focus:border-[#4a5d4e] shadow-inner" placeholder="Déjanos un mensaje..."></textarea>
+                            <label class="block font-cinzel text-xs font-bold mb-2 text-[#4a5d4e]">PASES ASIGNADOS PARA:</label>
+                            <p id="nombre-encontrado" class="font-script text-3xl mb-4 text-[#2b352d]"></p>
+                            
+                            <div id="lista-acompanantes" class="space-y-3 mb-8 bg-white/60 p-4 border border-gray-300 rounded-lg shadow-sm">
+                                <!-- Checkboxes inyectados por JS -->
+                            </div>
 
-                            <button type="submit" class="w-full bg-[#4a5d4e] text-white font-cinzel tracking-widest py-4 mt-2 hover:bg-[#3e4f42] transition-colors shadow-md">
+                            <button type="submit" class="w-full bg-[#4a5d4e] text-white font-cinzel tracking-widest py-4 mt-2 hover:bg-[#3e4f42] transition-colors shadow-md font-bold">
                                 ENVIAR CONFIRMACIÓN
                             </button>
                         </form>
@@ -873,33 +873,136 @@ END:VCALENDAR`;
             document.getElementById("segundos").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }, 1000);
 
-        // Capturar parámetro de la URL
-        document.addEventListener("DOMContentLoaded", () => {
+        // Cargar la lista completa y AUTO-SELECCIONAR al invitado de la URL
+        document.addEventListener("DOMContentLoaded", async () => {
+            // 1. Poner el nombre en la parte exterior del sobre
             const urlParams = new URLSearchParams(window.location.search);
-            const invitado = urlParams.get('invitado');
+            const nombreUrl = urlParams.get('invitado');
             const envelopeName = document.getElementById('guest-name');
-            const rsvpInput = document.getElementById('nombre-invitado');
-
-            if (invitado) {
-                envelopeName.innerText = invitado;
-                if (rsvpInput) rsvpInput.value = invitado;
+            
+            if (nombreUrl) {
+                envelopeName.innerText = nombreUrl;
             } else {
                 envelopeName.innerText = "Nuestra Boda";
             }
+
+            // 2. Descargar los datos de Google Sheets silenciosamente
+            try {
+                const res = await fetch(SCRIPT_URL);
+                todosLosInvitados = await res.json();
+                
+                // 3. MAGIA: Si hay un nombre en la URL, lo buscamos y auto-seleccionamos
+                if (nombreUrl) {
+                    const nombreNormalizado = normalizarTexto(nombreUrl);
+                    
+                    // Busca a la persona en la lista descargada (ignorando tildes y mayúsculas)
+                    const invitadoEncontrado = todosLosInvitados.find(inv => 
+                        normalizarTexto(inv.nombre) === nombreNormalizado
+                    );
+                    
+                    if (invitadoEncontrado) {
+                        // Ejecutamos la función que dibuja los checkboxes directamente
+                        seleccionarInvitado(invitadoEncontrado);
+                        document.getElementById('cargando-msg').classList.add('hidden');
+                        return; // Terminamos la ejecución aquí
+                    }
+                }
+                
+                // PLAN DE RESPALDO: Si abrieron un link sin nombre o escribiste diferente el nombre 
+                // en la URL vs la base de datos, mostramos el buscador manual por si acaso.
+                document.getElementById('cargando-msg').innerText = "Lista cargada. Ya puedes buscar tu nombre.";
+                setTimeout(() => document.getElementById('cargando-msg').classList.add('hidden'), 3000);
+                
+            } catch(e) {
+                document.getElementById('cargando-msg').innerText = "Error cargando la lista. Recarga la página.";
+                document.getElementById('cargando-msg').classList.replace('text-[#4a5d4e]', 'text-red-600');
+            }
         });
 
-        // Simulación Envío RSVP
-        document.getElementById('rsvp-form').addEventListener('submit', function(e) {
+        // Reemplaza esto por tu URL de Apps Script que ya tienes
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMCo9UUa2gS4HbuTjism19nufW74z1l3MaHACOsZqVKM3byeFF_1LpMsv41Tj9tz_k/exec'; 
+
+        async function buscarInvitado() {
+            const input = document.getElementById('nombre-buscar');
+            const nombre = input.value.trim();
+            const btn = document.querySelector('button[onclick="buscarInvitado()"]');
+            
+            if(!nombre) return;
+            
+            btn.innerText = '...';
+            document.getElementById('error-msg').classList.add('hidden');
+            
+            try {
+                // Hace un GET para buscar el nombre (ejecuta tu doGet)
+                const res = await fetch(`${SCRIPT_URL}?nombre=${encodeURIComponent(nombre)}`);
+                const data = await res.json();
+                
+                if(data.error) {
+                    document.getElementById('error-msg').classList.remove('hidden');
+                } else {
+                    // Oculta el buscador y muestra los checkboxes
+                    document.getElementById('rsvp-search-container').classList.add('hidden');
+                    const form = document.getElementById('rsvp-form');
+                    form.classList.remove('hidden');
+                    
+                    // Asigna los valores al formulario oculto
+                    document.getElementById('nombre-encontrado').innerText = data.nombre;
+                    document.getElementById('fila-sheet').value = data.row;
+                    
+                    // Dibuja los checkboxes basados en los acompañantes que encontró en Google Sheets
+                    const contenedorLista = document.getElementById('lista-acompanantes');
+                    contenedorLista.innerHTML = '';
+                    
+                    const todos = [data.nombre, ...data.acompanantes];
+                    todos.forEach((persona) => {
+                        contenedorLista.innerHTML += `
+                            <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-white/80 rounded transition-colors">
+                                <input type="checkbox" value="${persona}" class="asistente-cb form-checkbox h-5 w-5 text-[#4a5d4e] border-gray-400 rounded focus:ring-[#4a5d4e]" checked>
+                                <span class="font-serif-elegant text-[15px] text-gray-800">${persona}</span>
+                            </label>
+                        `;
+                    });
+                }
+            } catch(e) {
+                document.getElementById('error-msg').innerText = "Error de conexión. Intenta de nuevo.";
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
+            btn.innerText = 'BUSCAR';
+        }
+
+        // Enviar la actualización
+        document.getElementById('rsvp-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const btn = e.target.querySelector('button');
+            const btn = e.target.querySelector('button[type="submit"]');
             btn.innerText = 'ENVIANDO...';
             btn.style.opacity = '0.7';
-            setTimeout(() => {
-                btn.innerText = '¡CONFIRMACIÓN ENVIADA!';
+            
+            const checkboxes = document.querySelectorAll('.asistente-cb:checked');
+            const cantidadConfirmada = checkboxes.length;
+            const fila = document.getElementById('fila-sheet').value;
+            
+            try {
+                // Ejecuta el doPost con la acción "update"
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        'action': 'update', // Esto le dice al Apps Script que no agregue, que actualice
+                        'fila': fila,
+                        'asistencia': cantidadConfirmada > 0 ? 'Si' : 'No podre asistir',
+                        'cantidad': cantidadConfirmada
+                    })
+                });
+                
+                btn.innerText = '¡CONFIRMACIÓN GUARDADA!';
                 btn.style.backgroundColor = '#2b352d';
                 btn.style.opacity = '1';
-                this.reset();
-            }, 1500);
+                btn.disabled = true;
+            } catch(err) {
+                btn.innerText = 'ERROR, INTENTA DE NUEVO';
+                btn.style.opacity = '1';
+            }
         });
 
 
