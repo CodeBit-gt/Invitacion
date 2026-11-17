@@ -355,22 +355,31 @@
                     <!-- CAMBIA "cancion.mp3" POR EL ARCHIVO DE TU CANCIÓN -->
                     <audio id="wedding-song" src="cancion.mp3" preload="auto" loop></audio>
 
-                    <div onclick="toggleMusic()" class="w-24 h-24 bg-[#111] rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.4)] relative cursor-pointer hover:scale-105 transition-transform border-2 border-gray-800 select-none">
-                        <!-- Surcos del disco que giran -->
-                        <div id="vinyl-disc" class="w-full h-full rounded-full relative flex items-center justify-center">
-                            <div class="absolute inset-1 rounded-full border border-gray-700/60"></div>
-                            <div class="absolute inset-3 rounded-full border border-gray-700/60"></div>
-                            <div class="absolute inset-6 rounded-full border border-gray-700/60"></div>
-                            <!-- Detalle de brillo en el vinilo para notar el giro -->
-                            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+                    <div onclick="toggleMusic()" class="w-28 h-28 bg-[#141414] rounded-full flex items-center justify-center shadow-[0_12px_28px_rgba(0,0,0,0.45)] relative cursor-pointer hover:scale-105 transition-transform border-[3px] border-[#2a2a2a] select-none">
+                        
+                        <!-- Disco que gira (con reflejo cónico visible) -->
+                        <div id="vinyl-disc" class="w-full h-full rounded-full relative flex items-center justify-center overflow-hidden"
+                            style="background: conic-gradient(from 0deg, #111 0deg, #3a3a3a 35deg, #111 75deg, #111 180deg, #424242 215deg, #111 255deg, #111 360deg);">
+                            
+                            <!-- Surcos marcados -->
+                            <div class="absolute inset-2 rounded-full border border-white/15"></div>
+                            <div class="absolute inset-4 rounded-full border border-white/10"></div>
+                            <div class="absolute inset-6 rounded-full border border-white/20"></div>
+                            <div class="absolute inset-8 rounded-full border border-white/10"></div>
+
+                            <!-- Aro interior terracota que gira con el disco para dar referencia visual -->
+                            <div class="w-12 h-12 rounded-full bg-[#b75d3e] border-2 border-[#d3cbb9] flex items-center justify-center relative shadow-md">
+                                <div class="w-full h-[2px] bg-[#f4f1eb]/70 rotate-45"></div>
+                            </div>
                         </div>
 
-                        <!-- Etiqueta central fija con íconos Play / Pause -->
-                        <div class="absolute w-8 h-8 bg-[#f4f1eb] rounded-full flex items-center justify-center shadow-inner">
+                        <!-- Centro fijo con botones Play / Pause -->
+                        <div class="absolute w-8 h-8 bg-[#f4f1eb] rounded-full flex items-center justify-center shadow-md border border-[#d3cbb9] z-10">
                             <svg id="icon-play" class="w-4 h-4 text-[#2f4f2f] ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                            <svg id="icon-pause" class="w-4 h-4 text-[#2f4f2f] hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            <svg id="icon-pause" class="w-4 h-4 text-[#b75d3e] hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </div>
                     </div>
+
                     <p id="vinyl-text" class="font-cinzel text-[10px] tracking-[0.2em] text-[#2f4f2f] mt-6 text-center leading-relaxed">
                         DALE PLAY PARA ESCUCHAR<br>NUESTRA CANCIÓN
                     </p>
@@ -453,7 +462,7 @@
                             LUGAR: LA HACIENDA CHUACORRAL, CHUACORRAL, JOYABAJ, EL QUICHE
                         </li>
                         <li class="pb-2">
-                            HORA: 5:30 PM
+                            HORA: 4:30 PM
                         </li>
                     </ul>
 
@@ -468,7 +477,7 @@
                         <div class="grid grid-cols-2 gap-3">
 
                             <!-- WAZE -->
-                            <a href="https://ul.waze.com/ul?ll=14.98091000%2C-90.84365100&navigate=yes&utm_campaign=live_map&utm_source=waze_website&utm_medium=lm_share_location"
+                            <a href="https://ul.waze.com/ul?ll=14.98078100%2C-90.84335100&navigate=yes&utm_campaign=live_map&utm_source=waze_website&utm_medium=lm_share_location"
                             target="_blank"
                             rel="noopener noreferrer"
                             class="bg-[#eae4d8] border border-[#d3cbb9] rounded-full px-2 py-4 shadow-sm flex flex-col items-center justify-center hover:opacity-80 transition-all duration-300">
@@ -495,7 +504,7 @@
                             class="bg-[#eae4d8] border border-[#d3cbb9] rounded-full px-2 py-4 shadow-sm flex flex-col items-center justify-center hover:opacity-80 transition-all duration-300">
 
                                 <img
-                                    src="https://cdn.simpleicons.org/googlemaps"
+                                    src="https://cdn.simpleicons.org/googlemaps/b75d3e"
                                     alt="Google Maps"
                                     class="w-9 h-9 mb-2 object-contain"
                                 >
