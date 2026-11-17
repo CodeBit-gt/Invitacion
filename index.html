@@ -265,23 +265,18 @@
             text-align: center;
             transition: opacity 0.3s ease;
         }
-
-        /* CÓDIGO CORREGIDO PARA LOS DATOS BANCARIOS OCULTOS */
-        .bank-details {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.5s ease-in-out;
-            margin-top: 0;
+        /* =========================================
+           ANIMACIÓN DEL VINILO GIRANDO
+           ========================================= */
+        @keyframes spinVinyl {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
-        .bank-details.show {
-            max-height: 500px;
-            opacity: 1;
-            margin-top: 1.5rem;
+        .vinyl-spinning {
+            animation: spinVinyl 4s linear infinite;
         }
         
-
         input::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
     </style>
 </head>
@@ -357,16 +352,26 @@
                 
                 <!-- Reproductor de Vinilo -->
                 <div class="flex flex-col items-center mb-10 mt-6">
-                    <div class="w-24 h-24 bg-[#111] rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.4)] relative cursor-pointer hover:scale-105 transition-transform border-2 border-gray-800">
-                        <div class="absolute inset-1 rounded-full border border-gray-700/60"></div>
-                        <div class="absolute inset-3 rounded-full border border-gray-700/60"></div>
-                        <div class="absolute inset-6 rounded-full border border-gray-700/60"></div>
+                    <!-- CAMBIA "cancion.mp3" POR EL ARCHIVO DE TU CANCIÓN -->
+                    <audio id="wedding-song" src="cancion.mp3" preload="auto" loop></audio>
+
+                    <div onclick="toggleMusic()" class="w-24 h-24 bg-[#111] rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.4)] relative cursor-pointer hover:scale-105 transition-transform border-2 border-gray-800 select-none">
+                        <!-- Surcos del disco que giran -->
+                        <div id="vinyl-disc" class="w-full h-full rounded-full relative flex items-center justify-center">
+                            <div class="absolute inset-1 rounded-full border border-gray-700/60"></div>
+                            <div class="absolute inset-3 rounded-full border border-gray-700/60"></div>
+                            <div class="absolute inset-6 rounded-full border border-gray-700/60"></div>
+                            <!-- Detalle de brillo en el vinilo para notar el giro -->
+                            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+                        </div>
+
+                        <!-- Etiqueta central fija con íconos Play / Pause -->
                         <div class="absolute w-8 h-8 bg-[#f4f1eb] rounded-full flex items-center justify-center shadow-inner">
-                            <div class="w-1.5 h-1.5 bg-black rounded-full"></div>
-                            <svg class="absolute w-4 h-4 text-[#2f4f2f] ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="icon-play" class="w-4 h-4 text-[#2f4f2f] ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="icon-pause" class="w-4 h-4 text-[#2f4f2f] hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </div>
                     </div>
-                    <p class="font-cinzel text-[10px] tracking-[0.2em] text-[#2f4f2f] mt-6 text-center leading-relaxed">
+                    <p id="vinyl-text" class="font-cinzel text-[10px] tracking-[0.2em] text-[#2f4f2f] mt-6 text-center leading-relaxed">
                         DALE PLAY PARA ESCUCHAR<br>NUESTRA CANCIÓN
                     </p>
                 </div>
@@ -432,27 +437,98 @@
                 </div>
 
                 <!-- Detalles de Boda -->
+
+                <!-- Detalles de Boda -->
                 <div class="py-6 px-6 text-center w-full">
-                    <h2 class="font-serif-elegant text-3xl tracking-widest mb-10 text-[#2f4f2f]">DETALLES<br>DE LA BODA</h2>
+
+                    <h2 class="font-serif-elegant text-3xl tracking-widest mb-10 text-[#2f4f2f]">
+                        DETALLES<br>DE LA BODA
+                    </h2>
+
                     <ul class="text-left font-serif-elegant text-[#2f4f2f] space-y-3 mb-10 inline-block text-sm">
-                        <li class="border-b border-[#2f4f2f] pb-2">FECHA: Sábado, 05 de Diciembre 2026</li>
-                        <li class="border-b border-[#2f4f2f] pb-2">LUGAR: LA CABAÑA, RAXANEP, JOYABAJ, EL QUICHE</li>
-                        <li class="pb-2">HORA: 5:30 PM</li>
+                        <li class="border-b border-[#2f4f2f] pb-2">
+                            FECHA: Sábado, 05 de Diciembre 2026
+                        </li>
+                        <li class="border-b border-[#2f4f2f] pb-2">
+                            LUGAR: LA HACIENDA CHUACORRAL, CHUACORRAL, JOYABAJ, EL QUICHE
+                        </li>
+                        <li class="pb-2">
+                            HORA: 5:30 PM
+                        </li>
                     </ul>
-                    <!-- Botones de Acción (Ubicación y Calendario) -->
+
+                    <!-- Botones de Acción -->
                     <div class="flex flex-col space-y-3 mx-4 mb-10">
-                        <!-- Botón Mapa -->
-                        <a href="https://maps.google.com" target="_blank" class="bg-[#eae4d8] border border-[#d3cbb9] rounded-full px-6 py-3 shadow-sm text-center block hover:opacity-80 transition-opacity">
-                            <p class="font-cinzel text-base font-bold text-[#2f4f2f]">VER UBICACIÓN</p>
-                            <p class="font-serif-elegant text-[10px] italic text-gray-600 mt-1">CLICK AQUI PARA MAPA</p>
-                        </a>
-                        <!-- NUEVO: Botón Calendario -->
-                        <button onclick="downloadICS()" type="button" class="bg-[#2f4f2f] text-[#eae4d8] border border-[#d3cbb9] rounded-full px-6 py-3 shadow-sm text-center block hover:opacity-80 transition-opacity w-full">
-                                <p class="font-cinzel text-base font-bold">AGREGAR AL CALENDARIO</p>
-                                <p class="font-serif-elegant text-[10px] italic text-gray-400 mt-1 uppercase">APPLE / GOOGLE / ANDROID</p>
+
+                        <!-- Título de ubicación -->
+                        <p class="font-cinzel text-sm tracking-widest text-[#2f4f2f] mb-2">
+                            ENCUENTRA CÓMO LLEGAR
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3">
+
+                            <!-- WAZE -->
+                            <a href="https://ul.waze.com/ul?ll=14.98091000%2C-90.84365100&navigate=yes&utm_campaign=live_map&utm_source=waze_website&utm_medium=lm_share_location"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="bg-[#eae4d8] border border-[#d3cbb9] rounded-full px-2 py-4 shadow-sm flex flex-col items-center justify-center hover:opacity-80 transition-all duration-300">
+
+                                <img
+                                    src="https://cdn.simpleicons.org/waze/2F4F2F"
+                                    alt="Waze"
+                                    class="w-9 h-9 mb-2 object-contain"
+                                >
+
+                                <p class="font-cinzel text-sm font-bold text-[#2f4f2f]">
+                                    WAZE
+                                </p>
+
+                                <p class="font-serif-elegant text-[9px] italic text-gray-600 mt-1">
+                                    CÓMO LLEGAR
+                                </p>
+                            </a>
+
+                            <!-- GOOGLE MAPS -->
+                            <a href="https://maps.app.goo.gl/EsQhA2eLzGAdSC1x5"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="bg-[#eae4d8] border border-[#d3cbb9] rounded-full px-2 py-4 shadow-sm flex flex-col items-center justify-center hover:opacity-80 transition-all duration-300">
+
+                                <img
+                                    src="https://cdn.simpleicons.org/googlemaps"
+                                    alt="Google Maps"
+                                    class="w-9 h-9 mb-2 object-contain"
+                                >
+
+                                <p class="font-cinzel text-sm font-bold text-[#2f4f2f] text-center">
+                                    GOOGLE MAPS
+                                </p>
+
+                                <p class="font-serif-elegant text-[9px] italic text-gray-600 mt-1">
+                                    CÓMO LLEGAR
+                                </p>
+                            </a>
+
+                        </div>
+                        
+
+                        <!-- Botón Calendario -->
+                        <button onclick="downloadICS()"
+                                type="button"
+                                class="bg-[#2f4f2f] text-[#eae4d8] border border-[#d3cbb9] rounded-full px-6 py-3 shadow-sm text-center block hover:opacity-80 transition-opacity w-full">
+
+                            <p class="font-cinzel text-base font-bold">
+                                AGREGAR AL CALENDARIO
+                            </p>
+
+                            <p class="font-serif-elegant text-[10px] italic text-gray-400 mt-1 uppercase">
+                                APPLE / GOOGLE / ANDROID
+                            </p>
                         </button>
+
                     </div>
                 </div>
+
 
                 <!-- ========================================== -->
                 <!-- NUEVO ITINERARIO CON IMAGEN DE FONDO       -->
@@ -628,58 +704,6 @@
                         </div>
                 </div>
 
-                <!-- OPCIONES DE REGALO 
-                <div class="py-16 px-6 w-full text-center relative overflow-hidden bg-center bg-cover bg-no-repeat" style="background-image: url('https://images.unsplash.com/photo-1518559139589-9430c5e7b165?q=80&w=600&auto=format&fit=crop');">
-                    <!- Capa oscura para asegurar lectura del texto blanco 
-                    <div class="absolute inset-0 bg-[#8b6551]/60 mix-blend-multiply"></div>
-                    
-                    <div class="relative z-10 text-white">
-                        <h2 class="font-script text-5xl mb-2">Opciones de</h2>
-                        <h3 class="font-serif-elegant text-xl tracking-[0.2em] mb-8">REGALO</h3>
-                        
-                        <p class="font-serif-elegant text-[13px] leading-relaxed mb-10 px-4">
-                            ¡Qué nos acompañes es lo más importante!<br>
-                            Y si está en tu corazón realizar una muestra de cariño estaremos muy agradecidos.
-                        </p>
-
-                        <!- Iconos de Regalo 
-                        <div class="flex flex-col items-center justify-center space-y-6 mb-10">
-                            <div class="flex flex-col items-center">
-                                <svg class="w-16 h-12 mb-2" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                                <span class="font-serif-elegant text-sm">Efectivo</span>
-                            </div>
-                            <div class="flex flex-col items-center pt-2">
-                                <svg class="w-12 h-10 mb-2" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-                                    <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
-                                    <line x1="2" y1="10" x2="22" y2="10"></line>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <!- Botón Ver Datos
-                        <button onclick="toggleBankDetails()" class="border border-white py-3 px-8 font-serif-elegant text-base hover:bg-white hover:text-[#8b6551] transition-colors">
-                            Ver datos Bancarios
-                        </button>
-                        
-                         Caja de Datos Oculta 
-                        <div id="bank-details-box" class="bank-details bg-white/10 rounded-lg text-left p-0 mx-4">
-                            <div class="p-6">
-                                <p class="font-cinzel text-xs tracking-widest font-bold mb-2">BANCO INDUSTRIAL</p>
-                                <p class="font-serif-elegant text-sm mb-1">Cuenta Monetaria: <strong>123-456789-0</strong></p>
-                                <p class="font-serif-elegant text-sm mb-4">A nombre de: Valery Apellido</p>
-                                
-                                <hr class="border-white/30 mb-4">
-                                
-                                <p class="font-cinzel text-xs tracking-widest font-bold mb-2">BANCO BAM</p>
-                                <p class="font-serif-elegant text-sm mb-1">Cuenta de Ahorro: <strong>098-765432-1</strong></p>
-                                <p class="font-serif-elegant text-sm">A nombre de: Alex Apellido</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>--> 
-
                 <!-- RSVP: 100% Automático (Sin caja de búsqueda) -->
                 <div id="rsvp" class="py-16 px-6 text-center bg-[#e0dcd1] border-b border-[#d3cbb9] w-full">
                     <div class="max-w-lg mx-auto">
@@ -743,6 +767,36 @@
     </div>
 
     <script>
+
+
+        // =========================================================
+        // LÓGICA DEL REPRODUCTOR DE VINILO
+        // =========================================================
+        function toggleMusic() {
+            const audio = document.getElementById('wedding-song');
+            const vinyl = document.getElementById('vinyl-disc');
+            const iconPlay = document.getElementById('icon-play');
+            const iconPause = document.getElementById('icon-pause');
+            const vinylText = document.getElementById('vinyl-text');
+
+            if (audio.paused) {
+                audio.play().then(() => {
+                    vinyl.classList.add('vinyl-spinning');
+                    iconPlay.classList.add('hidden');
+                    iconPause.classList.remove('hidden');
+                    vinylText.innerHTML = 'PAUSAR<br>NUESTRA CANCIÓN';
+                }).catch(error => {
+                    console.error("Error al reproducir el audio:", error);
+                });
+            } else {
+                audio.pause();
+                vinyl.classList.remove('vinyl-spinning');
+                iconPlay.classList.remove('hidden');
+                iconPause.classList.add('hidden');
+                vinylText.innerHTML = 'DALE PLAY PARA ESCUCHAR<br>NUESTRA CANCIÓN';
+            }
+        }
+
         // LÓGICA DE ANIMACIÓN UNIFICADA
         function abrirSobre() {
             const flapTop = document.getElementById('flap-top');
@@ -824,7 +878,7 @@ BEGIN:VEVENT
 SUMMARY:Boda Alex y Valery
 DTSTART:20261205T173000
 DTEND:20261205T230000
-LOCATION:LA CABAÑA\\, RAXANEP\\, JOYABAJ\\, EL QUICHE
+LOCATION:LA Hacienda Chuacorral\\, Chuacorral\\, JOYABAJ\\, EL QUICHE
 DESCRIPTION:¡Nos casamos! Te esperamos para celebrar juntos este día tan especial. Dress Code: Formal.
 END:VEVENT
 END:VCALENDAR`;
